@@ -1,33 +1,202 @@
-// Cloudflare Worker: the API key stays server-side and is never sent to the browser.
-const cors = (origin, allowed) => ({
-  "Access-Control-Allow-Origin": origin === allowed && allowed ? origin : "null",
-  "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Vary": "Origin"
-});
+// ==========================================
+// ASSAD AI - SECURE CLOUDFLARE WORKER
+// ==========================================
+
+const corsHeaders = (origin, allowedOrigin) => {
+  const allowed = origin === allowedOrigin && allowedOrigin;
+
+  return {
+    "Access-Control-Allow-Origin": allowed ? origin : "null",
+    "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Vary": "Origin"
+  };
+};
+
+const jsonResponse = (data, status, headers) => {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      ...headers,
+      "Content-Type": "application/json; charset=utf-8"
+    }
+  });
+};
+
 export default {
   async fetch(request, env) {
-    const origin=request.headers.get("Origin")||"", allowed=env.ALLOWED_ORIGIN||"", headers=cors(origin,allowed), url=new URL(request.url);
-    if(request.method==="OPTIONS") return new Response(null,{status:origin===allowed&&allowed?204:403,headers});
-    if(request.method==="GET"&&url.pathname==="/health") return Response.json({ok:true,service:"ASSAD AI API"},{headers});
-    if(request.method!=="POST"||url.pathname!=="/api/chat") return Response.json({error:"Not found"},{status:404,headers});
-    if(!allowed||origin!==allowed) return Response.json({error:"Origin not allowed"},{status:403});
-    if(!env.OPENAI_API_KEY) return Response.json({error:"API key is not configured"},{status:503,headers});
-    let body;try{body=await request.json()}catch{return Response.json({error:"Invalid JSON"},{status:400,headers})}
-    if(!Array.isArray(body.messages)||body.messages.length<1||body.messages.length>20) return Response.json({error:"Send 1 to 20 messages"},{status:400,headers});
-    const input=[];
-    for(const m of body.messages){
-      if(!m||!["user","assistant"].includes(m.role)||typeof m.content!=="string"||!m.content.trim()||m.content.length>4000) return Response.json({error:"Invalid message"},{status:400,headers});
-      input.push({role:m.role,content:[{type:m.role==="assistant"?"output_text":"input_text",text:m.content.trim()}]});
+    const url = new URL(request.url);
+    const origin = request.headers.get("Origin") || "";
+    const allowedOrigin = env.ALLOWED_ORIGIN || "";
+    const headers = corsHeaders(origin, allowedOrigin);
+
+    // Handle browser preflight requests
+    if (request.method === "OPTIONS") {
+      if (!allowedOrigin || origin !== allowedOrigin) {
+        return new Response(null, { status: 403, headers });
+      }
+
+      return new Response(null, {
+        status: 204,
+        headers
+      });
     }
-    let upstream;
-    try{upstream=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"Authorization":"Bearer "+env.OPENAI_API_KEY,"Content-Type":"application/json"},body:JSON.stringify({model:env.OPENAI_MODEL||"gpt-6-astra",instructions:"You are ASSAD, a friendly and practical multilingual assistant. Reply in the user's language. Explain clearly, turn goals into realistic steps, ask one concise question when needed, be honest about uncertainty, and never promise financial success or claim actions you did not perform.",input,max_output_tokens:1200})})}
-    catch{return Response.json({error:"AI provider connection failed"},{status:502,headers})}
-    const data=await upstream.json().catch(()=>({}));
-    if(!upstream.ok)return Response.json({error:"AI provider request failed",provider_status:upstream.status},{status:502,headers});
-    let reply=typeof data.output_text==="string"?data.output_text:"";
-    if(!reply&&Array.isArray(data.output))for(const item of data.output)if(item.type==="message"&&Array.isArray(item.content))reply+=item.content.filter(x=>x.type==="output_text").map(x=>x.text||"").join("");
-    if(!reply.trim())return Response.json({error:"Empty AI response"},{status:502,headers});
-    return Response.json({reply:reply.trim()},{headers});
+
+    // Health check
+    if (request.method === "GET" && url.pathname === "/health") {
+      return jsonResponse({
+        ok: true,
+        service: "ASSAD AI API",
+        status: "online"
+      }, 200, headers);
+    }
+
+    // Only allow the chat endpoint
+    if (request.method !== "POST" || url.pathname !== "/api/chat") {
+      return jsonResponse({
+        error: "Endpoint not found"
+      }, 404, headers);
+    }
+
+    // Check website origin
+    if (!allowedOrigin || origin !== allowedOrigin) {
+      return jsonResponse({
+        error: "Origin not allowed"
+      }, 403, headers);
+    }
+
+    // Check API configuration
+    if (!env.OPENAI_API_KEY) {
+      return jsonResponse({
+        error: "API key is not configured"
+      }, 503, headers);
+    }
+
+    const model = env.OPENAI_MODEL || "gpt-6-astra";
+
+    let body;
+
+    try {
+      body = await request.json();
+    } catch {
+      return jsonResponse({
+        error: "Invalid JSON request"
+      }, 400, headers);
+    }
+
+    // Validate messages
+    if (
+      !body ||
+      !Array.isArray(body.messages) ||
+      body.messages.length < 1 ||
+      body.messages.length > 20
+    ) {
+      return jsonResponse({
+        error: "Send between 1 and 20 messages"
+      }, 400, headers);
+    }
+
+    const messages = [];
+
+    for (const message of body.messages) {
+      if (
+        !message ||
+        !["user", "assistant"].includes(message.role) ||
+        typeof message.content !== "string" ||
+        !message.content.trim() ||
+        message.content.length > 4000
+      ) {
+        return jsonResponse({
+          error: "Invalid message format"
+        }, 400, headers);
+      }
+
+      // Responses API accepts previous assistant messages
+      // as ordinary text input messages.
+      messages.push({
+        role: message.role,
+        content: message.content.trim()
+      });
+    }
+
+    // Send request to OpenAI
+    let response;
+
+    try {
+      response = await fetch(
+        "https://api.openai.com/v1/responses",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${env.OPENAI_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model,
+            instructions:
+              "You are ASSAD, a helpful, intelligent and practical multilingual AI assistant. " +
+              "Reply in the same language as the user. " +
+              "Help users turn ideas into realistic plans and clear steps. " +
+              "Be friendly, professional and easy to understand. " +
+              "Ask one short question when essential information is missing. " +
+              "Never promise financial success or claim actions you did not perform.",
+            input: messages,
+            max_output_tokens: 1200
+          })
+        }
+      );
+    } catch (error) {
+      return jsonResponse({
+        error: "Could not connect to the AI provider"
+      }, 502, headers);
+    }
+
+    // Read provider response
+    let data;
+
+    try {
+      data = await response.json();
+    } catch {
+      return jsonResponse({
+        error: "Invalid response from AI provider"
+      }, 502, headers);
+    }
+
+    if (!response.ok) {
+      return jsonResponse({
+        error: "AI provider request failed",
+        provider_status: response.status
+      }, 502, headers);
+    }
+
+    // Extract assistant text
+    let reply = "";
+
+    if (Array.isArray(data.output)) {
+      for (const item of data.output) {
+        if (
+          item.type === "message" &&
+          item.role === "assistant" &&
+          Array.isArray(item.content)
+        ) {
+          for (const part of item.content) {
+            if (part.type === "output_text") {
+              reply += part.text || "";
+            }
+          }
+        }
+      }
+    }
+
+    if (!reply.trim()) {
+      return jsonResponse({
+        error: "The AI returned an empty response"
+      }, 502, headers);
+    }
+
+    // Return the answer to the website
+    return jsonResponse({
+      reply: reply.trim()
+    }, 200, headers);
   }
 };
