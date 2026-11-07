@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#09080f">
+  <meta name="description" content="ASSAD AI turns your ideas into clear, actionable plans.">
+  <title>ASSAD AI — Turn ideas into reality</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="ASSAD AI home">
+      <img src="assets/logo.svg" alt="" class="logo">
+      <span>ASSAD <b>AI</b></span>
+    </a>
+    <nav class="nav">
+      <a href="#features" data-i18n="navFeatures">Features</a>
+      <a href="#how" data-i18n="navHow">How it works</a>
+    </nav>
+    <div class="top-actions">
+      <select id="language" aria-label="Language">
+        <option value="en">EN</option><option value="ar">العربية</option><option value="fr">FR</option>
+      </select>
+      <a class="login-link" href="#workspace" data-i18n="tryNow">Try it</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow"><span class="spark"></span><span data-i18n="eyebrow">YOUR IDEAS. YOUR NEXT MOVE.</span></div>
+      <h1 data-i18n="headline">Turn your ideas<br><span>into reality.</span></h1>
+      <p class="hero-copy" data-i18n="subheadline">One goal is all it takes. ASSAD AI helps you break big ambitions into clear, practical steps.</p>
+      <a class="primary-cta" href="#workspace"><span data-i18n="startBuilding">Start building</span><span aria-hidden="true">↗</span></a>
+      <div class="hero-note"><span class="pulse"></span><span data-i18n="prototypeNote">Early prototype · More capabilities coming soon</span></div>
+    </section>
+
+    <section class="workspace panel" id="workspace">
+      <div class="section-kicker" data-i18n="workspaceLabel">01 / YOUR WORKSPACE</div>
+      <h2 data-i18n="workspaceTitle">What do you want to achieve?</h2>
+      <p data-i18n="workspaceDesc">Describe your goal. We'll turn it into a starter action plan.</p>
+      <form id="goal-form">
+        <label class="sr-only" for="goal" data-i18n="goalLabel">Your goal</label>
+        <textarea id="goal" rows="3" maxlength="500" required data-i18n-placeholder="goalPlaceholder" placeholder="Example: I want to launch an online clothing brand..."></textarea>
+        <div class="form-bottom">
+          <span id="char-count">0 / 500</span>
+          <button class="primary-cta" type="submit"><span data-i18n="buildPlan">Build my plan</span><span>✦</span></button>
+        </div>
+      </form>
+      <div class="suggestions">
+        <span data-i18n="tryExample">Try:</span>
+        <button type="button" class="suggestion" data-example="Launch an online clothing store">Online store</button>
+        <button type="button" class="suggestion" data-example="Learn web development from zero">Learn coding</button>
+        <button type="button" class="suggestion" data-example="Grow my social media audience">Grow an audience</button>
+      </div>
+      <section id="result" class="result hidden" aria-live="polite">
+        <div class="result-head"><div><div class="section-kicker" data-i18n="generatedPlan">YOUR STARTER PLAN</div><h3 id="result-title"></h3></div><button id="copy-plan" class="ghost-btn" type="button" data-i18n="copyPlan">Copy plan</button></div>
+        <ol id="plan-list"></ol>
+        <p class="demo-disclaimer" data-i18n="demoDisclaimer">Demo output: this is a local prototype, not a live AI response yet.</p>
+      </section>
+    </section>
+
+    <section class="features" id="features">
+      <div class="section-kicker" data-i18n="featuresLabel">02 / THE ASSAD ECOSYSTEM</div>
+      <h2 data-i18n="featuresTitle">A smarter way to move forward.</h2>
+      <div class="feature-grid">
+        <article class="feature-card"><div class="feature-icon">✦</div><h3>ASSAD CORE</h3><p data-i18n="coreDesc">Your central AI workspace for thinking, planning and problem-solving.</p><span class="status live" data-i18n="prototype">Prototype</span></article>
+        <article class="feature-card"><div class="feature-icon">⌘</div><h3>ASSAD AGENTS</h3><p data-i18n="agentsDesc">Specialized agents designed to help with multi-step tasks.</p><span class="status" data-i18n="comingSoon">Coming soon</span></article>
+        <article class="feature-card"><div class="feature-icon">▤</div><h3>ASSAD WORKSPACE</h3><p data-i18n="workDesc">Keep your projects, notes and next actions in one place.</p><span class="status" data-i18n="comingSoon">Coming soon</span></article>
+        <article class="feature-card"><div class="feature-icon">✧</div><h3>ASSAD CREATIVE</h3><p data-i18n="creativeDesc">A future toolkit for creating content and visual ideas.</p><span class="status" data-i18n="comingSoon">Coming soon</span></article>
+      </div>
+    </section>
+
+    <section class="how panel" id="how">
+      <div class="section-kicker" data-i18n="howLabel">03 / SIMPLE BY DESIGN</div>
+      <h2 data-i18n="howTitle">From ambition to action.</h2>
+      <div class="steps">
+        <div><b>01</b><h3 data-i18n="stepOne">Tell us your goal</h3><p data-i18n="stepOneDesc">Start with the outcome you want.</p></div>
+        <div><b>02</b><h3 data-i18n="stepTwo">Get a clear plan</h3><p data-i18n="stepTwoDesc">Break it into manageable steps.</p></div>
+        <div><b>03</b><h3 data-i18n="stepThree">Take the next step</h3><p data-i18n="stepThreeDesc">Build momentum, one action at a time.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><a class="brand" href="#"><img src="assets/logo.svg" alt="" class="logo"><span>ASSAD <b>AI</b></span></a><p data-i18n="footerText">Built for people who turn ideas into action.</p><small>© <span id="year"></span> ASSAD AI · <span data-i18n="footerPrototype">Early prototype</span></small></footer>
+</body>
+</html>
