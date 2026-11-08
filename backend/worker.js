@@ -33,6 +33,7 @@ export default {
     const allowedOrigin = env.ALLOWED_ORIGIN || "";
     const headers = corsHeaders(origin, allowedOrigin);
 
+    // OPTIONS
     if (request.method === "OPTIONS") {
       if (!allowedOrigin || origin !== allowedOrigin) {
         return new Response(null, { status: 403, headers });
@@ -41,6 +42,7 @@ export default {
       return new Response(null, { status: 204, headers });
     }
 
+    // Health check
     if (request.method === "GET" && url.pathname === "/health") {
       return jsonResponse({
         ok: true,
@@ -50,26 +52,36 @@ export default {
       }, 200, headers);
     }
 
+    // Chat endpoint
     if (request.method !== "POST" || url.pathname !== "/api/chat") {
-      return jsonResponse({ error: "Endpoint not found" }, 404, headers);
+      return jsonResponse({
+        error: "Endpoint not found"
+      }, 404, headers);
     }
 
+    // Check origin
     if (!allowedOrigin || origin !== allowedOrigin) {
-      return jsonResponse({ error: "Origin not allowed" }, 403, headers);
+      return jsonResponse({
+        error: "Origin not allowed"
+      }, 403, headers);
     }
 
+    // Check AI binding
     if (!env.AI) {
       return jsonResponse({
         error: "Workers AI binding is not configured"
       }, 503, headers);
     }
 
+    // Read request
     let body;
 
     try {
       body = await request.json();
     } catch {
-      return jsonResponse({ error: "Invalid JSON request" }, 400, headers);
+      return jsonResponse({
+        error: "Invalid JSON request"
+      }, 400, headers);
     }
 
     if (
@@ -83,6 +95,7 @@ export default {
       }, 400, headers);
     }
 
+    // System instructions
     const messages = [{
       role: "system",
       content:
@@ -94,6 +107,7 @@ export default {
         "Never promise financial success or claim actions you did not perform."
     }];
 
+    // Validate messages
     for (const message of body.messages) {
       if (
         !message ||
@@ -113,21 +127,31 @@ export default {
       });
     }
 
+    // Run AI
     try {
       const result = await env.AI.run(MODEL, {
         messages,
         max_tokens: 1200,
-        temperature: 0.6
+        temperature: 0.6,
+
+        // Disable thinking to preserve output tokens
+        chat_template_kwargs: {
+          enable_thinking: false
+        }
       });
 
+      // Extract visible answer
       let reply = "";
 
       if (typeof result === "string") {
         reply = result;
+
       } else if (typeof result?.response === "string") {
         reply = result.response;
+
       } else if (typeof result?.result?.response === "string") {
         reply = result.result.response;
+
       } else if (
         Array.isArray(result?.choices) &&
         typeof result.choices[0]?.message?.content === "string"
@@ -135,20 +159,28 @@ export default {
         reply = result.choices[0].message.content;
       }
 
+      // Empty response handling
       if (!reply.trim()) {
-        console.error("Workers AI returned an empty response:", result);
+        console.error(
+          "Workers AI returned an empty response:",
+          result
+        );
 
         return jsonResponse({
           error: "The AI returned an empty response"
         }, 502, headers);
       }
 
+      // Successful response
       return jsonResponse({
         reply: reply.trim()
       }, 200, headers);
 
     } catch (error) {
-      console.error("Workers AI error:", error?.message || error);
+      console.error(
+        "Workers AI error:",
+        error?.message || error
+      );
 
       return jsonResponse({
         error: "AI provider request failed"
