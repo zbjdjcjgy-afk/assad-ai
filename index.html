@@ -2,16 +2,15 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#09080f">
-<meta name="description" content="ASSAD AI يحوّل أفكارك إلى خطوات ومشاريع واضحة.">
-<title>ASSAD AI — حوّل أفكارك إلى إنجازات</title>
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css">
-<script src="script.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09080f">
+  <meta name="description" content="ASSAD AI - مساعدك الذكي ومكان واحد لأفكارك ومشاريعك.">
+  <title>ASSAD AI — حوّل أفكارك إلى إنجازات</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
-
 <body>
 
 <div class="glow purple"></div>
@@ -30,11 +29,7 @@
   </nav>
 
   <div class="top-actions">
-    <span class="status">
-      <i></i>
-      <span data-i18n="prototype">نسخة تجريبية</span>
-    </span>
-
+    <span class="status"><i></i><span data-i18n="prototype">نسخة تجريبية</span></span>
     <select id="language" aria-label="Language">
       <option value="ar">العربية</option>
       <option value="en">English</option>
@@ -45,244 +40,193 @@
 
 <main id="home">
 
-<section class="welcome">
-  <div>
-    <div class="eyebrow">
-      ✦ <span data-i18n="eyebrow">مساحة واحدة لأفكارك ومشاريعك</span>
+  <section class="welcome">
+    <div>
+      <div class="eyebrow">✦ <span data-i18n="eyebrow">مساحة واحدة لأفكارك ومشاريعك</span></div>
+      <h1 data-i18n="headline">أهلاً بك في <span>ASSAD AI</span></h1>
+      <p data-i18n="intro">قل لنا ما الذي تريد إنجازه. سنساعدك على فهم الفكرة وترتيب الخطوات والبدء بثقة.</p>
+    </div>
+    <img class="hero-logo" src="assets/logo.svg" alt="ASSAD AI">
+  </section>
+
+  <!-- ASSAD CHAT -->
+  <section class="assistant panel" id="assistant">
+    <div class="assistant-head">
+      <img src="assets/logo.svg" alt="ASSAD">
+      <div class="assistant-name">
+        <h2 data-i18n="chatTitle">محادثة ASSAD</h2>
+        <p data-i18n="chatSub">مساعدك لتنظيم الأفكار وتحويلها إلى عمل</p>
+      </div>
+      <span id="connection" class="connection"><i></i><span data-i18n="online">متصل</span></span>
     </div>
 
-    <h1 data-i18n="headline">
-      أهلاً بك في <span>ASSAD AI</span>
-    </h1>
-
-    <p data-i18n="intro">
-      قل لنا ما الذي تريد إنجازه. سنساعدك على فهم الفكرة وترتيب الخطوات والبدء بثقة.
-    </p>
-  </div>
-
-  <img class="hero-logo" src="assets/logo.svg" alt="ASSAD AI">
-</section>
-
-<section class="assistant panel" id="assistant">
-
-  <div class="assistant-head">
-    <img src="assets/logo.svg" alt="">
-
-    <div class="assistant-name">
-      <h2 data-i18n="chatTitle">محادثة ASSAD</h2>
-      <p data-i18n="chatSub">مساعدك لتنظيم الأفكار وتحويلها إلى عمل</p>
+    <div class="agent-bar">
+      <label for="agent-select" data-i18n="chooseAgent">اختر الوكيل:</label>
+      <select id="agent-select">
+        <option value="general">✦ ASSAD CORE — المساعد العام</option>
+        <option value="coding">⌘ ASSAD CODE — البرمجة</option>
+        <option value="planning">▤ ASSAD PLAN — التخطيط</option>
+        <option value="research">⌕ ASSAD RESEARCH — البحث والتحليل</option>
+        <option value="writing">✎ ASSAD WRITE — الكتابة</option>
+      </select>
     </div>
 
-    <span id="connection" class="connection">
-      <i></i>
-      <span data-i18n="notReady">الربط الذكي قيد الإعداد</span>
-    </span>
-  </div>
+    <div class="chat-layout">
+      <aside class="history-panel" id="history-panel">
+        <div class="history-head">
+          <h3 data-i18n="historyTitle">سجل المحادثات</h3>
+          <button type="button" id="close-history" class="icon-btn" aria-label="إغلاق">×</button>
+        </div>
+        <button type="button" id="new-chat" class="history-new">＋ <span data-i18n="newChat">محادثة جديدة</span></button>
+        <div id="history-list" class="history-list"></div>
+        <p class="local-note" data-i18n="localNote">يُحفظ السجل على هذا الجهاز فقط.</p>
+      </aside>
 
-  <!-- منطقة المحادثة -->
-  <div id="chat" class="chat" aria-live="polite">
+      <div class="chat-main">
+        <div id="chat" class="chat" aria-live="polite">
+          <div class="message bot">
+            <img src="assets/logo.svg" alt="">
+            <div class="bubble">
+              <p data-i18n="welcome">مرحباً! أنا ASSAD. أخبرني بفكرتك أو هدفك، وسنقسمه معاً إلى خطوات واضحة.</p>
+              <small data-i18n="now">الآن</small>
+            </div>
+          </div>
+        </div>
 
-    <div class="message bot">
-      <img src="assets/logo.svg" alt="">
+        <div class="chat-toolbar">
+          <button type="button" id="history-toggle" class="toolbar-btn">▤ <span data-i18n="history">السجل</span></button>
+          <button type="button" id="clear-chat" class="toolbar-btn danger">⌫ <span data-i18n="clearChat">مسح المحادثة</span></button>
+        </div>
 
-      <div class="bubble">
-        <p data-i18n="welcome">
-          مرحباً! أنا ASSAD. أخبرني بفكرتك أو هدفك، وسنقسمه معاً إلى خطوات واضحة.
-        </p>
-        <small data-i18n="now">الآن</small>
+        <div class="quick">
+          <p data-i18n="quickTitle">لست متأكداً من أين تبدأ؟ جرّب:</p>
+          <div class="chips">
+            <button type="button" data-prompt="أريد إنشاء مشروع تجاري عبر الإنترنت. ساعدني في اختيار الفكرة ووضع خطة بداية." data-i18n="chip1">✦ إنشاء مشروع تجاري</button>
+            <button type="button" data-prompt="أريد تعلم البرمجة من الصفر. ضع لي خطة تعلم للمبتدئين." data-i18n="chip2">⌘ تعلم مهارة جديدة</button>
+            <button type="button" data-prompt="لدي فكرة تطبيق وأريد تحويلها إلى خطة تنفيذ واضحة." data-i18n="chip3">▤ تطوير فكرة تطبيق</button>
+          </div>
+        </div>
+
+        <form id="chat-form" class="composer">
+          <label class="sr" for="prompt" data-i18n="messageLabel">اكتب رسالتك</label>
+          <textarea id="prompt" rows="1" maxlength="4000" placeholder="اكتب فكرتك أو اسأل ASSAD..." data-i18n-placeholder="placeholder"></textarea>
+          <div class="composer-bottom">
+            <span data-i18n="privacy">🔒 لا تضع كلمات مرور أو معلومات حساسة هنا.</span>
+            <button id="send" type="submit"><span data-i18n="send">إرسال</span> ↑</button>
+          </div>
+        </form>
+        <p class="hint" data-i18n="apiHint">المحادثة الذكية تعمل عبر خادم ASSAD AI.</p>
       </div>
     </div>
+  </section>
 
-  </div>
-
-  <!-- أدوات المحادثة -->
-  <div class="chat-toolbar">
-
-    <button type="button" id="new-chat" class="toolbar-btn">
-      <span>＋</span>
-      <span data-i18n="newChat">محادثة جديدة</span>
-    </button>
-
-    <button type="button" id="clear-chat" class="toolbar-btn danger">
-      <span>⌫</span>
-      <span data-i18n="clearChat">مسح المحادثة</span>
-    </button>
-
-  </div>
-
-  <!-- اقتراحات جاهزة -->
-  <div class="quick">
-    <p data-i18n="quickTitle">
-      لست متأكداً من أين تبدأ؟ جرّب:
-    </p>
-
-    <div class="chips">
-
-      <button type="button"
-        data-prompt="أريد إنشاء مشروع تجاري عبر الإنترنت. ساعدني في اختيار الفكرة ووضع خطة بداية."
-        data-i18n="chip1">
-        ✦ إنشاء مشروع تجاري
-      </button>
-
-      <button type="button"
-        data-prompt="أريد تعلم البرمجة من الصفر. ضع لي خطة تعلم للمبتدئين."
-        data-i18n="chip2">
-        ⌘ تعلم مهارة جديدة
-      </button>
-
-      <button type="button"
-        data-prompt="لدي فكرة تطبيق وأريد تحويلها إلى خطة تنفيذ واضحة."
-        data-i18n="chip3">
-        ▤ تطوير فكرة تطبيق
-      </button>
-
-    </div>
-  </div>
-
-  <!-- مربع الكتابة -->
-  <form id="chat-form" class="composer">
-
-    <label class="sr" for="prompt" data-i18n="messageLabel">
-      اكتب رسالتك
-    </label>
-
-    <textarea
-      id="prompt"
-      rows="1"
-      maxlength="4000"
-      placeholder="اكتب فكرتك أو اسأل ASSAD..."
-      data-i18n-placeholder="placeholder">
-    </textarea>
-
-    <div class="composer-bottom">
-
-      <span data-i18n="privacy">
-        🔒 لا تضع كلمات مرور أو معلومات حساسة هنا.
-      </span>
-
-      <button id="send" type="submit">
-        <span data-i18n="send">إرسال</span> ↑
-      </button>
-
+  <!-- TOOLS -->
+  <section id="tools" class="tools">
+    <div class="section-head">
+      <div>
+        <small data-i18n="workspace">مساحة العمل</small>
+        <h2 data-i18n="toolsTitle">أدواتك في مكان واحد</h2>
+      </div>
+      <p data-i18n="toolsIntro">كل ما تحتاجه لتنظيم أفكارك وإنجاز أعمالك.</p>
     </div>
 
-  </form>
+    <div class="grid">
+      <article class="tool featured">
+        <div class="tool-icon">✦</div>
+        <span class="tag active" data-i18n="available">متاح</span>
+        <h3>ASSAD CORE</h3>
+        <p data-i18n="core">المساعد الرئيسي لفهم الأفكار والتخطيط وحل المشكلات.</p>
+        <a href="#assistant" data-i18n="open">افتح المساعد ←</a>
+      </article>
 
-  <p class="hint" data-i18n="apiHint">
-    المحادثة الذكية الحقيقية تعمل عبر خادم ASSAD AI.
-  </p>
+      <article class="tool">
+        <div class="tool-icon">⌘</div>
+        <span class="tag active">ACTIVE</span>
+        <h3>ASSAD AGENTS</h3>
+        <p data-i18n="agents">وكلاء متخصصون للبرمجة والتخطيط والبحث والكتابة.</p>
+        <a href="#assistant" data-i18n="chooseAgentLink">اختر وكيلاً ←</a>
+      </article>
 
-</section>
+      <article class="tool">
+        <div class="tool-icon">▤</div>
+        <span class="tag active">ACTIVE</span>
+        <h3>ASSAD WORKSPACE</h3>
+        <p data-i18n="work">أنشئ مشاريعك ونظّم مهامك وتابع إنجازك.</p>
+        <a href="#workspace" data-i18n="openWorkspace">افتح مساحة العمل ←</a>
+      </article>
 
-<!-- الأدوات -->
-<section id="tools" class="tools">
+      <article class="tool">
+        <div class="tool-icon">✧</div>
+        <span class="tag active">ACTIVE</span>
+        <h3>ASSAD CREATIVE</h3>
+        <p data-i18n="creative">أنشئ أفكاراً وبرومبتات للصور والفيديو والمنشورات.</p>
+        <a href="#creative" data-i18n="openCreative">افتح الاستوديو ←</a>
+      </article>
+    </div>
+  </section>
 
-  <div class="section-head">
-    <div>
-      <small data-i18n="workspace">مساحة العمل</small>
-      <h2 data-i18n="toolsTitle">أدواتك في مكان واحد</h2>
+  <!-- WORKSPACE -->
+  <section id="workspace" class="feature-section panel">
+    <div class="feature-heading">
+      <div>
+        <small>ASSAD WORKSPACE</small>
+        <h2 data-i18n="workspaceTitle">مساحة مشاريعك</h2>
+        <p data-i18n="workspaceDesc">أنشئ مشاريعك، أضف المهام، وتابع تقدمك.</p>
+      </div>
+      <span class="feature-symbol">▤</span>
     </div>
 
-    <p data-i18n="toolsIntro">
-      ابدأ بأداة واحدة، وسنضيف المزيد مع تطور المنصة.
-    </p>
-  </div>
+    <form id="project-form" class="inline-form">
+      <input id="project-name" type="text" maxlength="70" placeholder="اسم المشروع..." data-i18n-placeholder="projectPlaceholder" required>
+      <button type="submit" data-i18n="addProject">＋ إنشاء مشروع</button>
+    </form>
+    <div id="projects-list" class="projects-list"></div>
+    <p class="local-note" data-i18n="workspaceLocal">مشاريعك محفوظة محلياً على جهازك.</p>
+  </section>
 
-  <div class="grid">
-
-    <article class="tool featured">
-      <div class="tool-icon">✦</div>
-      <span class="tag active" data-i18n="available">متاح تجريبياً</span>
-      <h3>ASSAD CORE</h3>
-      <p data-i18n="core">
-        المساعد الرئيسي لفهم الأفكار والتخطيط وحل المشكلات.
-      </p>
-      <a href="#assistant" data-i18n="open">افتح المساعد ←</a>
-    </article>
-
-    <article class="tool">
-      <div class="tool-icon">⌘</div>
-      <span class="tag" data-i18n="soon">قريباً</span>
-      <h3>ASSAD AGENTS</h3>
-      <p data-i18n="agents">
-        وكلاء متخصصون للمهام متعددة الخطوات.
-      </p>
-    </article>
-
-    <article class="tool">
-      <div class="tool-icon">▤</div>
-      <span class="tag" data-i18n="soon">قريباً</span>
-      <h3>ASSAD WORKSPACE</h3>
-      <p data-i18n="work">
-        نظّم مشاريعك وملاحظاتك وخطواتك القادمة.
-      </p>
-    </article>
-
-    <article class="tool">
-      <div class="tool-icon">✧</div>
-      <span class="tag" data-i18n="soon">قريباً</span>
-      <h3>ASSAD CREATIVE</h3>
-      <p data-i18n="creative">
-        أدوات مستقبلية لصناعة المحتوى والأفكار البصرية.
-      </p>
-    </article>
-
-  </div>
-</section>
-
-<!-- عن المنصة -->
-<section id="about" class="how panel">
-
-  <small data-i18n="how">كيف نعمل؟</small>
-  <h2 data-i18n="howTitle">ثلاث خطوات بسيطة</h2>
-
-  <div class="steps">
-
-    <div>
-      <b>01</b>
-      <h3 data-i18n="step1">أخبرنا بما تريد</h3>
-      <p data-i18n="step1d">
-        اكتب هدفك حتى لو كانت الفكرة غير مكتملة.
-      </p>
+  <!-- CREATIVE -->
+  <section id="creative" class="feature-section panel">
+    <div class="feature-heading">
+      <div>
+        <small>ASSAD CREATIVE</small>
+        <h2 data-i18n="creativeTitle">استوديو صناعة المحتوى</h2>
+        <p data-i18n="creativeDesc">جهّز طلبك الإبداعي وأرسله إلى ASSAD لصياغته.</p>
+      </div>
+      <span class="feature-symbol">✧</span>
     </div>
 
-    <div>
-      <b>02</b>
-      <h3 data-i18n="step2">رتّب خطتك</h3>
-      <p data-i18n="step2d">
-        حوّل الفكرة إلى مراحل وخطوات مفهومة.
-      </p>
+    <div class="creative-form">
+      <label for="creative-type" data-i18n="contentType">نوع المحتوى</label>
+      <select id="creative-type">
+        <option value="image" data-i18n="imagePrompt">برومبت صورة</option>
+        <option value="video" data-i18n="videoPrompt">برومبت فيديو قصير</option>
+        <option value="post" data-i18n="socialPost">منشور لوسائل التواصل</option>
+        <option value="ideas" data-i18n="contentIdeas">أفكار محتوى</option>
+      </select>
+
+      <label for="creative-details" data-i18n="creativeDetails">صف فكرتك</label>
+      <textarea id="creative-details" rows="4" maxlength="2000" placeholder="مثلاً: فيديو كوميدي عن موزة وخوخة..." data-i18n-placeholder="creativePlaceholder"></textarea>
+      <button type="button" id="creative-send" data-i18n="sendToAssistant">✦ جهّز الطلب مع ASSAD</button>
+      <p class="local-note" data-i18n="creativeNote">هذه الأداة تنشئ النصوص والبرومبتات. توليد الصور والفيديو مباشرة يحتاج ربط خدمة خارجية.</p>
     </div>
+  </section>
 
-    <div>
-      <b>03</b>
-      <h3 data-i18n="step3">ابدأ التنفيذ</h3>
-      <p data-i18n="step3d">
-        اختر خطوة صغيرة وابدأ في إنجازها.
-      </p>
+  <!-- ABOUT -->
+  <section id="about" class="how panel">
+    <small data-i18n="how">كيف نعمل؟</small>
+    <h2 data-i18n="howTitle">ثلاث خطوات بسيطة</h2>
+    <div class="steps">
+      <div><b>01</b><h3 data-i18n="step1">أخبرنا بما تريد</h3><p data-i18n="step1d">اكتب هدفك حتى لو كانت الفكرة غير مكتملة.</p></div>
+      <div><b>02</b><h3 data-i18n="step2">رتّب خطتك</h3><p data-i18n="step2d">حوّل الفكرة إلى مراحل وخطوات مفهومة.</p></div>
+      <div><b>03</b><h3 data-i18n="step3">ابدأ التنفيذ</h3><p data-i18n="step3d">اختر خطوة صغيرة وابدأ في إنجازها.</p></div>
     </div>
-
-  </div>
-</section>
-
+  </section>
 </main>
 
 <footer>
-
-  <a class="brand" href="#home">
-    <img src="assets/logo.svg" alt="">
-    <span>ASSAD <b>AI</b></span>
-  </a>
-
-  <p data-i18n="footer">
-    أفكار أكبر. خطوات أوضح. إنجاز حقيقي.
-  </p>
-
-  <small>
-    © <span id="year"></span> ASSAD AI ·
-    <span data-i18n="footerStatus">نسخة أولية قيد التطوير</span>
-  </small>
-
+  <a class="brand" href="#home"><img src="assets/logo.svg" alt=""><span>ASSAD <b>AI</b></span></a>
+  <p data-i18n="footer">أفكار أكبر. خطوات أوضح. إنجاز حقيقي.</p>
+  <small>© <span id="year"></span> ASSAD AI · <span data-i18n="footerStatus">نسخة أولية قيد التطوير</span></small>
 </footer>
 
 </body>
