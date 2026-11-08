@@ -31,10 +31,15 @@ const T = {
     step3:"ابدأ التنفيذ",step3d:"اختر خطوة صغيرة وابدأ في إنجازها.",
     footer:"أفكار أكبر. خطوات أوضح. إنجاز حقيقي.",
     footerStatus:"نسخة أولية قيد التطوير",
-    missing:"واجهة المحادثة جاهزة، لكن خادم الذكاء الاصطناعي لم يُربط بعد. سنكمل إعداده في الخطوة التالية.",
+    missing:"واجهة المحادثة جاهزة، لكن خادم الذكاء الاصطناعي لم يُربط بعد.",
     error:"تعذر الاتصال بالمساعد حالياً. تحقق من إعداد الخادم ثم حاول مجدداً.",
     thinking:"ASSAD يفكر الآن...",
-    tooLong:"الرسالة طويلة جداً. اختصرها قليلاً."
+    tooLong:"الرسالة طويلة جداً. اختصرها قليلاً.",
+    newChat:"محادثة جديدة",
+    clearChat:"مسح المحادثة",
+    copy:"نسخ الإجابة",
+    copied:"تم النسخ ✓",
+    copyError:"تعذر النسخ"
   },
 
   en: {
@@ -64,16 +69,21 @@ const T = {
     step3:"Start doing",step3d:"Choose one small action and make progress.",
     footer:"Bigger ideas. Clearer steps. Real progress.",
     footerStatus:"Early prototype in development",
-    missing:"The chat is ready, but the AI server is not connected yet. We'll finish setup next.",
+    missing:"The chat is ready, but the AI server is not connected yet.",
     error:"The assistant could not be reached. Check the server and try again.",
     thinking:"ASSAD is thinking...",
-    tooLong:"That message is too long. Please shorten it."
+    tooLong:"That message is too long. Please shorten it.",
+    newChat:"New chat",
+    clearChat:"Clear chat",
+    copy:"Copy answer",
+    copied:"Copied ✓",
+    copyError:"Copy failed"
   },
 
   fr: {
     navChat:"Assistant",navTools:"Outils",navAbout:"À propos",prototype:"Prototype",
     eyebrow:"Un espace pour vos idées et projets",
-    headline:'Bienvenue sur <span>ASSAD AI</span>',
+    headline:"Bienvenue sur <span>ASSAD AI</span>",
     intro:"Dites-nous ce que vous souhaitez accomplir. Nous vous aiderons à clarifier l'idée et organiser les étapes.",
     chatTitle:"Discuter avec ASSAD",chatSub:"Votre partenaire pour passer des idées à l'action",
     notReady:"Connexion IA en attente",
@@ -100,7 +110,12 @@ const T = {
     missing:"L'interface est prête, mais le serveur IA n'est pas encore connecté.",
     error:"Impossible de joindre l'assistant. Vérifiez la configuration du serveur.",
     thinking:"ASSAD réfléchit...",
-    tooLong:"Message trop long. Veuillez le raccourcir."
+    tooLong:"Message trop long. Veuillez le raccourcir.",
+    newChat:"Nouvelle discussion",
+    clearChat:"Effacer la discussion",
+    copy:"Copier la réponse",
+    copied:"Copié ✓",
+    copyError:"Échec de la copie"
   }
 };
 
@@ -109,13 +124,15 @@ const lang = document.getElementById("language");
 const chat = document.getElementById("chat");
 const input = document.getElementById("prompt");
 const send = document.getElementById("send");
+const newChatBtn = document.getElementById("new-chat");
+const clearChatBtn = document.getElementById("clear-chat");
 
 let history = [];
 let busy = false;
 
-// الترجمة
 const tr = k => (T[lang.value] || T.ar)[k] || T.ar[k] || k;
 
+// تغيير اللغة
 function setLang(v) {
   const d = T[v] || T.ar;
 
@@ -133,14 +150,55 @@ function setLang(v) {
       e.placeholder = d[e.dataset.i18nPlaceholder];
     }
   });
+
+  document.querySelectorAll(".copy-btn").forEach(btn => {
+    if (!btn.dataset.copied) {
+      btn.textContent = tr("copy");
+    }
+  });
 }
 
 lang.addEventListener("change", e => setLang(e.target.value));
 
+// نسخ النص
+async function copyText(text, button) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.append(area);
+      area.select();
+
+      const success = document.execCommand("copy");
+      area.remove();
+
+      if (!success) throw new Error("Copy failed");
+    }
+
+    button.textContent = tr("copied");
+    button.dataset.copied = "true";
+
+    setTimeout(() => {
+      button.textContent = tr("copy");
+      delete button.dataset.copied;
+    }, 1800);
+
+  } catch (error) {
+    button.textContent = tr("copyError");
+
+    setTimeout(() => {
+      button.textContent = tr("copy");
+    }, 1800);
+  }
+}
+
 // إضافة رسالة
 function add(role, text) {
   const row = document.createElement("div");
-
   row.className = "message " + (role === "user" ? "user" : "bot");
 
   if (role !== "user") {
@@ -150,18 +208,41 @@ function add(role, text) {
     row.append(img);
   }
 
-  const b = document.createElement("div");
-  b.className = "bubble";
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
 
   const p = document.createElement("p");
   p.textContent = text;
-  b.append(p);
+  bubble.append(p);
 
-  const s = document.createElement("small");
-  s.textContent = tr("now");
-  b.append(s);
+  const time = document.createElement("small");
+  time.textContent = tr("now");
+  bubble.append(time);
 
-  row.append(b);
+  // زر نسخ إجابات المساعد
+  if (role !== "user") {
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "copy-btn";
+    copyBtn.textContent = tr("copy");
+
+    copyBtn.style.display = "block";
+    copyBtn.style.marginTop = "9px";
+    copyBtn.style.padding = "5px 9px";
+    copyBtn.style.borderRadius = "8px";
+    copyBtn.style.border = "1px solid #e8bd6940";
+    copyBtn.style.background = "#ffffff08";
+    copyBtn.style.color = "#e8bd69";
+    copyBtn.style.fontSize = "10px";
+
+    copyBtn.addEventListener("click", () => {
+      copyText(text, copyBtn);
+    });
+
+    bubble.append(copyBtn);
+  }
+
+  row.append(bubble);
   chat.append(row);
 
   chat.scrollTop = chat.scrollHeight;
@@ -169,7 +250,33 @@ function add(role, text) {
   return row;
 }
 
-// عبارات الانتظار حسب اللغة
+// إعادة المحادثة للبداية
+function resetChat() {
+  if (busy) return;
+
+  history = [];
+  chat.replaceChildren();
+
+  add("bot", tr("welcome"));
+
+  input.value = "";
+  input.style.height = "auto";
+  input.focus();
+}
+
+// محادثة جديدة
+if (newChatBtn) {
+  newChatBtn.addEventListener("click", resetChat);
+}
+
+// مسح المحادثة
+if (clearChatBtn) {
+  clearChatBtn.addEventListener("click", () => {
+    resetChat();
+  });
+}
+
+// عبارات الانتظار
 function getThinkingMessages() {
   const messages = {
     ar: [
@@ -179,7 +286,6 @@ function getThinkingMessages() {
       "أراجع المعلومات...",
       "لحظات فقط، أقترب من الانتهاء..."
     ],
-
     en: [
       "Analyzing your question...",
       "Preparing the best answer...",
@@ -187,7 +293,6 @@ function getThinkingMessages() {
       "Reviewing the information...",
       "Almost ready..."
     ],
-
     fr: [
       "J'analyse votre question...",
       "Je prépare la meilleure réponse...",
@@ -200,10 +305,9 @@ function getThinkingMessages() {
   return messages[lang.value] || messages.ar;
 }
 
-// إنشاء مؤشر الانتظار
+// مؤشر الانتظار
 function createThinkingMessage() {
   const row = add("bot", "");
-
   row.classList.add("thinking-message");
 
   const bubble = row.querySelector(".bubble");
@@ -231,20 +335,15 @@ function createThinkingMessage() {
 
   const timer = setInterval(() => {
     messages = getThinkingMessages();
-
     index = (index + 1) % messages.length;
     status.textContent = messages[index];
-
     chat.scrollTop = chat.scrollHeight;
   }, 2500);
 
-  return {
-    row,
-    timer
-  };
+  return { row, timer };
 }
 
-// إرسال الرسائل إلى ASSAD AI
+// إرسال الرسالة
 async function submitMessage(text) {
   const msg = text.trim();
 
@@ -278,11 +377,10 @@ async function submitMessage(text) {
   send.disabled = true;
   send.firstChild.textContent = tr("thinking");
 
-  // عرض مؤشر الانتظار
   const thinking = createThinkingMessage();
 
   try {
-    const r = await fetch(ASSAD_API_URL, {
+    const response = await fetch(ASSAD_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -292,19 +390,18 @@ async function submitMessage(text) {
       })
     });
 
-    const data = await r.json();
+    const data = await response.json();
 
-    if (!r.ok) {
-      throw Error(data.error || "API error");
+    if (!response.ok) {
+      throw new Error(data.error || "API error");
     }
 
     const answer = String(data.reply || "").trim();
 
     if (!answer) {
-      throw Error("Empty answer");
+      throw new Error("Empty answer");
     }
 
-    // إيقاف حركة الانتظار
     clearInterval(thinking.timer);
     thinking.row.remove();
 
@@ -317,12 +414,9 @@ async function submitMessage(text) {
       history = history.slice(-20);
     }
 
-    // إظهار الإجابة
     add("bot", answer);
 
-  } catch (e) {
-
-    // إيقاف حركة الانتظار عند الخطأ
+  } catch (error) {
     clearInterval(thinking.timer);
     thinking.row.remove();
 
@@ -331,11 +425,9 @@ async function submitMessage(text) {
     add("bot", tr("error"));
 
   } finally {
-
     busy = false;
     send.disabled = false;
     send.firstChild.textContent = tr("send");
-
   }
 }
 
@@ -352,9 +444,9 @@ input.addEventListener("input", () => {
 });
 
 // الأزرار السريعة
-document.querySelectorAll("[data-prompt]").forEach(b => {
-  b.addEventListener("click", () => {
-    input.value = b.dataset.prompt;
+document.querySelectorAll("[data-prompt]").forEach(button => {
+  button.addEventListener("click", () => {
+    input.value = button.dataset.prompt;
     input.focus();
     input.dispatchEvent(new Event("input"));
   });
