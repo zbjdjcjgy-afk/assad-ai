@@ -132,12 +132,11 @@ export default {
       const result = await env.AI.run(MODEL, {
         messages,
         max_tokens: 1200,
-        temperature: 0.6,
-
-        // Disable thinking to preserve output tokens
-        chat_template_kwargs: {
-          enable_thinking: false
-        }
+temperature: 0.6,
+reasoning_effort: null,
+chat_template_kwargs: {
+  enable_thinking: false
+}
       });
 
       // Extract visible answer
